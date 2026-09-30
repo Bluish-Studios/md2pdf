@@ -1,0 +1,25 @@
+# Runtime files md2pdf installs on first run (Python packages, private Python, mermaid.js cache, scratch)
+.runtime/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Output from trying md2pdf inside this folder
+*.pdf
+*.html
+
+# Local secrets and settings
+.env
+.env.*
+.claude/settings.local.json
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+.DS_Store
