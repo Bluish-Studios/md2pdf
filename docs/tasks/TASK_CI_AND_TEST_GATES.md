@@ -88,7 +88,6 @@ Tests work in three layers:
   bandit as a separate tool, since ruff's `S` rules cover the same checks with no extra dependency.
 - **Known bugs as `xfail(strict=True)`**, so the suite stays green today and turns red when the bug is fixed without
   anyone updating the test.
-- **Stacked PR** on the repo-setup branch, so each PR can be reviewed on its own.
 
 ## Remaining
 
