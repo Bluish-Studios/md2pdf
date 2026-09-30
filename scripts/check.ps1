@@ -46,7 +46,7 @@ function Invoke-Step([string]$Name, [scriptblock]$Body) {
 
 function Invoke-Setup {
     $base = (Get-Command python -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1).Source
-    if (-not $base) { throw 'Python 3.10+ is needed on PATH to create .venv' }
+    if (-not $base) { throw 'Python 3.13+ is needed on PATH to create .venv' }
     if (-not (Test-Path (Join-Path $Root '.venv'))) { & $base -m venv (Join-Path $Root '.venv') }
     $py = Get-Python $false
     & $py -m pip install --disable-pip-version-check --quiet --upgrade -r requirements-dev.txt

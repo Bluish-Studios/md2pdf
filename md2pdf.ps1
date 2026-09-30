@@ -1,5 +1,5 @@
 ﻿# md2pdf.ps1 - Markdown to PDF for reMarkable tablets and paper.
-# Finds Python 3.10+ (or installs a private copy from python.org), then runs md2pdf.py with the same arguments.
+# Finds Python 3.13+ (or installs a private copy from python.org), then runs md2pdf.py with the same arguments.
 #   .\md2pdf.ps1 notes.md        .\md2pdf.ps1 --help        .\md2pdf.ps1 --add-to-path
 # Works in Windows PowerShell 5.1 and PowerShell 7. There is deliberately no param() block, so every argument
 # reaches md2pdf.py untouched.
@@ -9,7 +9,7 @@ $ProgressPreference = 'SilentlyContinue'
 $ScriptArgs = @($args)
 $ToolDir = $PSScriptRoot
 $Engine = Join-Path $ToolDir 'md2pdf.py'
-$MinPython = [version]'3.10'
+$MinPython = [version]'3.13'
 
 function Write-Note([string]$Text) { [Console]::Error.WriteLine("md2pdf: $Text") }
 
@@ -66,7 +66,7 @@ function Install-PrivatePython([string]$RuntimeHome) {
     $listing = (Invoke-WebRequest -Uri $ftp -UseBasicParsing).Content
     $all = @([regex]::Matches($listing, 'href="(3\.\d+\.\d+)/"') | ForEach-Object { [version]$_.Groups[1].Value })
     $url = $null
-    foreach ($minor in 13, 12, 14, 11, 10) {
+    foreach ($minor in 13, 14) {
         foreach ($v in @($all | Where-Object { $_.Minor -eq $minor } | Sort-Object -Descending)) {
             $candidate = "$ftp$v/python-$v-embed-$suffix.zip"
             try {

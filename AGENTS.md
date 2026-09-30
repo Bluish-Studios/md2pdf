@@ -76,14 +76,14 @@ gate exists and run `./scripts/check.ps1`.
 
 | Gate | Enforces | Where |
 |---|---|---|
-| ruff | lint, plus the flake8-bandit security rules (`S`). An accepted finding needs `# noqa: Sxxx - reason` on its line. | fast, CI lint |
-| actionlint | workflow YAML is valid and safe | fast, CI lint |
-| PowerShell syntax + PSScriptAnalyzer | the launcher and scripts parse and pass analysis (`PSScriptAnalyzerSettings.psd1`) | full, CI lint |
-| privacy | no personal emails in files or commits; `.pii-patterns.local` locally | fast (staged), CI lint (history) |
-| TODO links | every TODO/FIXME in code links an issue (`#12` or its URL) | fast, CI lint |
-| unit tests | behaviour of each function, with fakes for Edge and the network | fast, CI test |
-| e2e + launcher tests | real conversions in Edge; the launchers from a fresh copy, including the first-run install | full, CI test |
-| coverage floor | at least 90% line coverage of `md2pdf.py` over the whole suite (`pyproject.toml`) | full, CI test |
+| ruff | lint, plus the flake8-bandit security rules (`S`). An accepted finding needs `# noqa: Sxxx - reason` on its line. | fast, CI gates |
+| actionlint | workflow YAML is valid and safe | fast, CI gates |
+| PowerShell syntax + PSScriptAnalyzer | the launcher and scripts parse and pass analysis (`PSScriptAnalyzerSettings.psd1`) | full, CI gates |
+| privacy | no personal emails in files or commits; `.pii-patterns.local` locally | fast (staged), CI gates (history) |
+| TODO links | every TODO/FIXME in code links an issue (`#12` or its URL) | fast, CI gates |
+| unit tests | behaviour of each function, with fakes for Edge and the network | fast, CI gates |
+| e2e + launcher tests | real conversions in Edge; the launchers from a fresh copy, including the first-run install | full, CI gates |
+| coverage floor | at least 90% line coverage of `md2pdf.py` over the whole suite (`pyproject.toml`) | full, CI gates |
 | gitleaks | no secrets in any commit | CI security |
 | pip-audit | no known vulnerabilities in the dependencies a first run installs | CI security |
 | PR body | the description follows `.github/pull_request_template.md`; dependency changes are justified | CI pr-body |

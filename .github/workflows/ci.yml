@@ -1,12 +1,14 @@
 name: CI
 
-# The merge gates. Each job runs scripts/check.ps1 (the same script as the local git hooks) or a pinned
-# scanner, and prints a pass/fail table in the run summary. The PR-description gate lives in pr-body.yml,
-# because it must re-run when the description is edited without re-running everything here.
+# The merge gates. `gates` runs scripts/check.ps1 (the same script as the local git hooks); `security` runs
+# pinned scanners. Each prints a pass/fail table in the run summary. The PR-description gate lives in
+# pr-body.yml, because it must re-run when the description is edited without re-running everything here.
+#
+# Kept cheap on purpose: Windows minutes bill at 2x and every job rounds up to a whole minute, so everything
+# that needs Windows runs in ONE job, and only on pull requests (a merge commit has the tree its PR already
+# passed). Run it by hand on any branch with "Run workflow" (workflow_dispatch).
 
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -18,10 +20,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint, privacy, workflow YAML
-    runs-on: windows-latest
-    timeout-minutes: 10
+  gates:
+    name: Gates (lint, privacy, tests with Edge, coverage)
+    runs-on: windows-latest # Microsoft Edge is preinstalled; md2pdf needs Python 3.13+
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
@@ -33,33 +35,13 @@ jobs:
           cache-dependency-path: requirements-dev.txt
       - name: Install dev tools
         run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
-      - name: Gates
-        run: ./scripts/check.ps1 -Mode lint -NoVenv
-
-  test:
-    name: Tests (Python ${{ matrix.python }})
-    runs-on: windows-latest # Microsoft Edge is preinstalled
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.10", "3.13"] # the oldest supported and the current release
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: ${{ matrix.python }}
-          cache: pip
-          cache-dependency-path: requirements-dev.txt
-      - name: Install dev tools
-        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
-      - name: Unit, end-to-end and launcher tests with the coverage floor
-        run: ./scripts/check.ps1 -Mode test -NoVenv
+      - name: Every gate (same as the pre-push hook)
+        run: ./scripts/check.ps1 -Mode full -NoVenv
       - name: Upload PDFs, page images and coverage
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: test-artifacts-py${{ matrix.python }}
+          name: test-artifacts
           path: test-artifacts/
           retention-days: 14
           if-no-files-found: warn

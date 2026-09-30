@@ -95,7 +95,7 @@ Everything goes in `.runtime\` next to these scripts. If that folder isn't writa
 | Folder | What | When |
 |---|---|---|
 | `lib-py3XX-*` | Python packages `markdown-it-py`, `mdit-py-plugins`, `pypdf`, `websockets` (pip `--target`, so your Python is not touched) | first run |
-| `python\` | the official embeddable Python from python.org (not added to PATH) | only if no Python 3.10+ is found |
+| `python\` | the official embeddable Python from python.org (not added to PATH) | only if no Python 3.13+ is found |
 | `cache\mermaid.min.js` | mermaid.js from jsDelivr (unpkg as fallback) | first document with a mermaid diagram, or `--setup` |
 | `tmp\` | scratch files for a run, deleted afterwards | every run |
 

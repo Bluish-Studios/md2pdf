@@ -2,7 +2,7 @@
 
 [tool.ruff]
 line-length = 150
-target-version = "py310"
+target-version = "py313"
 extend-exclude = [".runtime"]
 
 [tool.ruff.lint]

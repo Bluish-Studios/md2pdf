@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """md2pdf: convert Markdown to a paginated PDF laid out for a reMarkable tablet (or A5/A4/Letter paper).
 
-Needs only Python 3.10+ and Microsoft Edge. On first run it installs its Python packages (markdown-it-py,
+Needs only Python 3.13+ and Microsoft Edge. On first run it installs its Python packages (markdown-it-py,
 mdit-py-plugins, pypdf, websockets) into a private folder next to this script, never into your Python.
 Documents are rendered locally by a headless Microsoft Edge; nothing is uploaded anywhere.
 
@@ -1012,7 +1012,7 @@ class Cdp:
         try:
             await self.ws.send(json.dumps(msg))
             res = await asyncio.wait_for(fut, timeout)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             raise TimeoutError(f"Edge did not answer {method} within {timeout:g} s") from None
         except ConnectionClosed:
             raise ConnectionError("lost the connection to Edge (did it crash?)") from None
@@ -1301,7 +1301,7 @@ async def convert_one(browser: Browser, src: pathlib.Path, out: pathlib.Path, la
             raise RuntimeError(f"Edge could not open the page: {nav['errorText']}")
         try:
             await asyncio.wait_for(loaded, 90)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             warnings.append("the page took over 90 s to load (slow remote images?); printed what had loaded")
         await evaluate(cdp, sid, "document.fonts.ready.then(() => true)", await_promise=True, timeout=30)
         diagrams = None

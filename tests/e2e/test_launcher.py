@@ -63,4 +63,4 @@ def test_exit_codes_pass_through(fresh, launcher):
     assert run(fresh, launcher=launcher).returncode == 2  # no inputs
     assert run(fresh, "missing.md", launcher=launcher).returncode == 2
     bad = run(fresh, "--setup", launcher=launcher, MD2PDF_PYTHON=str(fresh[0] / "no-python.exe"))
-    assert bad.returncode == 3 and "is not Python 3.10 or newer" in bad.stderr
+    assert bad.returncode == 3 and "is not Python 3.13 or newer" in bad.stderr

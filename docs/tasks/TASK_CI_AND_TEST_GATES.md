@@ -23,6 +23,14 @@ Follow-up, during the same session:
 > Trying to keep this lightweight but build enough scaffolding that we can trust agents to do work, leave a record of
 > their work, and run trusted CI gates that show clear deterministic pass/fail before any merge
 
+Follow-up, after the first CI run:
+
+> hey why are there Python 3.10 and Python 3.13 test steps? wouldn't we want just one of those?
+>
+> one job on 3.13, raise the minimum to 3.13 - optimize to minimize github actions time, yes
+>
+> there's exactly one user right now and that's me 🙂 so I think it's fair to increase min required version
+
 ## Approach
 
 One script, `scripts/check.ps1`, runs every gate. The git hooks call it (`-Mode fast` before a commit, the full set
@@ -62,7 +70,8 @@ Tests work in three layers:
 | Gate runner and git hooks | `scripts/check.ps1`, `.githooks/pre-commit`, `.githooks/pre-push` |
 | Privacy, TODO-link and PR-description gates, with tests | `scripts/gates.py`, `tests/test_gates.py` |
 | Lint and security lint (ruff with bandit rules), coverage floor, pytest markers | `pyproject.toml`, `PSScriptAnalyzerSettings.psd1` |
-| CI: lint, tests on Python 3.10 and 3.13 with Edge, security (gitleaks, pip-audit), PR body | `.github/workflows/ci.yml`, `.github/workflows/pr-body.yml` |
+| CI: one Windows job for every `check.ps1` gate on Python 3.13; security (gitleaks, pip-audit) and PR body on Linux | `.github/workflows/ci.yml`, `.github/workflows/pr-body.yml` |
+| Minimum Python raised from 3.10 to 3.13 | `md2pdf.ps1`, `md2pdf.py`, `README.md`, `pyproject.toml`, `scripts/check.ps1` |
 | Dependabot for actions and pip | `.github/dependabot.yml` |
 | Agent instructions, task-record format, PR template | `AGENTS.md`, `CLAUDE.md`, `docs/tasks/README.md`, `.github/pull_request_template.md` |
 | `__COMPAT_LAYER` fix; `# noqa` reasons on accepted security-lint findings | `md2pdf.py` |
@@ -73,8 +82,17 @@ Tests work in three layers:
 - **One gate script for hooks and CI** instead of separate YAML steps. Rejected: pre-commit (the framework), because
   it adds a dependency and its own configuration language for what one PowerShell script does, and the launcher is
   Windows-only anyway.
-- **All test jobs on `windows-latest`**, because it has Edge preinstalled and the launchers are Windows-only.
-  Rejected: Linux runners for unit tests, which would need platform branches in the tests for little saving.
+- **One Windows job, Python 3.13 only, pull requests only**, to keep Actions time low. Windows minutes bill at 2x
+  and every job rounds up to a whole minute; the first hosted run (lint job + a 3.10/3.13 test matrix) billed about
+  14 minutes per push. So:
+  - Lint and tests run in one job (one runner start instead of two).
+  - The minimum Python is now 3.13. The maintainer is the only user, and 3.10 reaches end of life in October 2026.
+    Rejected: keeping a 3.10 leg, or a Linux unit-test leg on the minimum version, which cost time for no current user.
+  - CI no longer runs again on pushes to `main`, because a merged PR already passed on the same tree. It can still be
+    started by hand ("Run workflow").
+
+  Security and the PR-body check stay on Linux (1x). Rejected: Linux runners for the main gates, because Edge and the
+  launchers need Windows.
 - **In-process e2e** (`md2pdf.main()`), so real Edge runs count toward coverage. Only the launcher tests use
   subprocesses. They also run the real first-run pip install, which the in-process tests skip.
 - **No pixel-diff visual regression.** Font rendering and Edge updates would make it flaky, and a flaky gate gets
@@ -92,8 +110,7 @@ Tests work in three layers:
 ## Remaining
 
 - Fix the doubled bookmark titles (#3) and the colliding mermaid diagrams (#4), then remove their xfail marks.
-- Check the first hosted CI run of each job, especially the Python 3.10 matrix leg and the PSScriptAnalyzer step,
-  which ran only locally on PowerShell 7.
+- If Actions time matters more later: run the end-to-end tests in parallel (pytest-xdist, one Edge per worker).
 
 ## Manual intervention
 
