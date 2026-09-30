@@ -47,9 +47,9 @@ Tests work in three layers:
    exit with code 0 before opening its DevTools port: "could not start headless Edge". The launchers weren't
    affected, because Windows PowerShell 5.1 drops the variable. Fixed in `launch_edge`, which now starts Edge without
    it (unit test in `test_setup.py`).
-2. **Doubled PDF bookmark titles** (not fixed). A heading that starts a page gets its title twice in Edge's PDF
+2. **Doubled PDF bookmark titles** (not fixed, #3). A heading that starts a page gets its title twice in Edge's PDF
    outline, e.g. `ContentsContents`. Recorded as a strict xfail: `test_bookmark_titles_are_not_doubled`.
-3. **Two mermaid diagrams collide** (not fixed). Every diagram's SVG gets the id `mermaid-0`, so the second
+3. **Two mermaid diagrams collide** (not fixed, #4). Every diagram's SVG gets the id `mermaid-0`, so the second
    diagram's styles and markers clash with the first: in the showcase contact sheet the two diagrams draw on top of
    each other. Recorded as a strict xfail: `test_mermaid_diagrams_get_unique_svg_ids`.
 
@@ -92,12 +92,12 @@ Tests work in three layers:
 
 ## Remaining
 
-- Fix the two bugs above, then remove their xfail marks.
-- CI hasn't run yet on the hosted runner. Check the first run of each job, especially the Python 3.10 matrix leg and
-  the PSScriptAnalyzer step.
+- Fix the doubled bookmark titles (#3) and the colliding mermaid diagrams (#4), then remove their xfail marks.
+- Check the first hosted CI run of each job, especially the Python 3.10 matrix leg and the PSScriptAnalyzer step,
+  which ran only locally on PowerShell 7.
 
 ## Manual intervention
 
-Branch protection (required status checks before merge) is a repository setting only the maintainer can change.
-GitHub offers it for private repositories only on paid plans, so it can be turned on once the repository is public.
-Tracked in the PR's `## Manual intervention` section.
+#2: require the CI checks before merging to `main`. Branch protection is a repository setting only the maintainer
+can change, and GitHub offers it for private repositories only on paid plans, so it can be turned on once the
+repository is public.
