@@ -10,7 +10,7 @@ It needs only Windows and Microsoft Edge. Python and everything else install the
 Clone the repository, or download it as a ZIP (**Code → Download ZIP**) and extract it anywhere:
 
 ```powershell
-git clone https://github.com/jorgll/md2pdf.git
+git clone https://github.com/Bluish-Studios/md2pdf.git
 cd md2pdf
 .\md2pdf.cmd --setup              # optional: install and check everything now
 ```

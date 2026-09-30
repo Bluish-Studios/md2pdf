@@ -31,6 +31,14 @@ Follow-up, after the first CI run:
 >
 > there's exactly one user right now and that's me 🙂 so I think it's fair to increase min required version
 
+Follow-up, to make the gates blocking:
+
+> hey I tried enabling the ruleset but that won't work on my personal github project account. I have a team
+> organization called Bluish-Studios where I've been keeping repvault and evshift. Can you migrate this repo over to
+> bluish studios so we can apply the CI rules as blocking gates?
+>
+> the repo doesn't exist yet. And this should be the first public repo here
+
 ## Approach
 
 One script, `scripts/check.ps1`, runs every gate. The git hooks call it (`-Mode fast` before a commit, the full set
@@ -55,9 +63,9 @@ Tests work in three layers:
    exit with code 0 before opening its DevTools port: "could not start headless Edge". The launchers weren't
    affected, because Windows PowerShell 5.1 drops the variable. Fixed in `launch_edge`, which now starts Edge without
    it (unit test in `test_setup.py`).
-2. **Doubled PDF bookmark titles** (not fixed, #3). A heading that starts a page gets its title twice in Edge's PDF
+2. **Doubled PDF bookmark titles** (not fixed, #2). A heading that starts a page gets its title twice in Edge's PDF
    outline, e.g. `ContentsContents`. Recorded as a strict xfail: `test_bookmark_titles_are_not_doubled`.
-3. **Two mermaid diagrams collide** (not fixed, #4). Every diagram's SVG gets the id `mermaid-0`, so the second
+3. **Two mermaid diagrams collide** (not fixed, #3). Every diagram's SVG gets the id `mermaid-0`, so the second
    diagram's styles and markers clash with the first: in the showcase contact sheet the two diagrams draw on top of
    each other. Recorded as a strict xfail: `test_mermaid_diagrams_get_unique_svg_ids`.
 
@@ -104,16 +112,22 @@ Tests work in three layers:
   Left out: database, service, auth, frontend, deploy and scenario rules, status-claim and skills-sync gates.
 - **Security gate = gitleaks (full history, pinned binary with checksum) + pip-audit + ruff `S` rules.** Rejected:
   bandit as a separate tool, since ruff's `S` rules cover the same checks with no extra dependency.
+- **A fresh repository in Bluish-Studios, not a GitHub transfer.** The old personal repository still served two
+  rewritten commits that carry the maintainer's personal email (a merged PR pointed at one, and the event history
+  listed both). A transfer would have made them public, and only GitHub Support can purge them. The new repository
+  got only the clean branches; the three issues and the open PR were re-created (issue numbers shifted down by one),
+  and the old repository was archived, still private. The ruleset requires the three CI checks with no bypass, so
+  agents acting with the maintainer's token can't skip them either.
 - **Known bugs as `xfail(strict=True)`**, so the suite stays green today and turns red when the bug is fixed without
   anyone updating the test.
 
 ## Remaining
 
-- Fix the doubled bookmark titles (#3) and the colliding mermaid diagrams (#4), then remove their xfail marks.
+- Fix the doubled bookmark titles (#2) and the colliding mermaid diagrams (#3), then remove their xfail marks.
 - If Actions time matters more later: run the end-to-end tests in parallel (pytest-xdist, one Edge per worker).
 
 ## Manual intervention
 
-#2: require the CI checks before merging to `main`. Branch protection is a repository setting only the maintainer
-can change, and GitHub offers it for private repositories only on paid plans, so it can be turned on once the
-repository is public.
+#1: require the CI checks before merging to `main`. A ruleset on a personal repository wasn't available, so the
+repository moved to the Bluish-Studios organization, and the ruleset was set up during the move (see Key decisions).
+Close #1 once a PR has been merged through the ruleset.
