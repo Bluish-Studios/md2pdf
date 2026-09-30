@@ -1,0 +1,6 @@
+#!/bin/sh
+# Fast gates on every commit (seconds): lint, privacy of the staged lines, TODO links, unit tests.
+# Turned on by: ./scripts/check.ps1 -Mode setup   (sets git config core.hooksPath .githooks)
+ps=pwsh
+command -v pwsh >/dev/null 2>&1 || ps=powershell.exe
+exec "$ps" -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/check.ps1 -Mode fast

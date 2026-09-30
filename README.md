@@ -144,6 +144,18 @@ Remove-Item .runtime, "$env:LOCALAPPDATA\md2pdf" -Recurse -Force -ErrorAction Si
 .\md2pdf.cmd --setup
 ```
 
+## Development
+
+Contributions from people and coding agents follow [AGENTS.md](AGENTS.md): the gates, the testing expectations, task
+records in [docs/tasks](docs/tasks/README.md), and the PR template. To get started:
+
+```powershell
+.\scripts\check.ps1 -Mode setup    # once: .venv with the dev tools, and the git hooks
+.\scripts\check.ps1                # every gate CI runs: lint, security, privacy, unit + Edge end-to-end tests, coverage
+```
+
+The end-to-end tests keep each PDF they make, a PNG of every page and a contact sheet in `test-artifacts\`. CI uploads that folder with every run.
+
 ## License
 
 Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

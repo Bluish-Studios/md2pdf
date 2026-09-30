@@ -1,0 +1,30 @@
+# Tool settings for development only. md2pdf itself is a single script with no build step.
+
+[tool.ruff]
+line-length = 150
+target-version = "py310"
+extend-exclude = [".runtime"]
+
+[tool.ruff.lint]
+# S is flake8-bandit: the security lint. Each accepted finding carries a `# noqa: Sxxx - reason` on its line.
+select = ["E", "F", "W", "B", "UP", "S"]
+ignore = ["E731"]  # small local lambdas are used on purpose
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S108", "S310", "S324", "S603", "S607"]  # asserts, fake paths and processes in tests
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "e2e: converts real documents with headless Microsoft Edge",
+    "launcher: runs md2pdf.cmd / md2pdf.ps1 from a fresh copy, including the first-run package install (Windows only)",
+]
+
+[tool.coverage.run]
+source = ["md2pdf"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true

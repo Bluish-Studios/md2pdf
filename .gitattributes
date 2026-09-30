@@ -6,3 +6,6 @@
 
 *.py text eol=lf
 *.md text eol=lf
+
+# Git hooks are run by sh, which cannot read CRLF.
+.githooks/* text eol=lf
