@@ -10,7 +10,7 @@ It needs only Windows and Microsoft Edge. Python and everything else install the
 Clone the repository, or download it as a ZIP (**Code → Download ZIP**) and extract it anywhere:
 
 ```powershell
-git clone https://github.com/jorgll/md2pdf.git
+git clone https://github.com/Bluish-Studios/md2pdf.git
 cd md2pdf
 .\md2pdf.cmd --setup              # optional: install and check everything now
 ```
@@ -95,7 +95,7 @@ Everything goes in `.runtime\` next to these scripts. If that folder isn't writa
 | Folder | What | When |
 |---|---|---|
 | `lib-py3XX-*` | Python packages `markdown-it-py`, `mdit-py-plugins`, `pypdf`, `websockets` (pip `--target`, so your Python is not touched) | first run |
-| `python\` | the official embeddable Python from python.org (not added to PATH) | only if no Python 3.10+ is found |
+| `python\` | the official embeddable Python from python.org (not added to PATH) | only if no Python 3.13+ is found |
 | `cache\mermaid.min.js` | mermaid.js from jsDelivr (unpkg as fallback) | first document with a mermaid diagram, or `--setup` |
 | `tmp\` | scratch files for a run, deleted afterwards | every run |
 
@@ -143,6 +143,18 @@ To reset md2pdf to a clean first run:
 Remove-Item .runtime, "$env:LOCALAPPDATA\md2pdf" -Recurse -Force -ErrorAction SilentlyContinue
 .\md2pdf.cmd --setup
 ```
+
+## Development
+
+Contributions from people and coding agents follow [AGENTS.md](AGENTS.md): the gates, the testing expectations, task
+records in [docs/tasks](docs/tasks/README.md), and the PR template. To get started:
+
+```powershell
+.\scripts\check.ps1 -Mode setup    # once: .venv with the dev tools, and the git hooks
+.\scripts\check.ps1                # every gate CI runs: lint, security, privacy, unit + Edge end-to-end tests, coverage
+```
+
+The end-to-end tests keep each PDF they make, a PNG of every page and a contact sheet in `test-artifacts\`. CI uploads that folder with every run.
 
 ## License
 

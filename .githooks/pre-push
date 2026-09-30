@@ -1,0 +1,14 @@
+#!/bin/sh
+# The full gate set before anything leaves this machine: the same script CI runs.
+# Skipped only for wip/* and tmp/* branches, or with SKIP_PREFLIGHT=1. Never use --no-verify for a real push.
+branch=$(git rev-parse --abbrev-ref HEAD)
+case "$branch" in
+  wip/*|tmp/*) echo "pre-push: skipping the full check on $branch"; exit 0 ;;
+esac
+if [ "$SKIP_PREFLIGHT" = "1" ]; then
+  echo "pre-push: SKIP_PREFLIGHT=1, skipping the full check (CI still runs it)"
+  exit 0
+fi
+ps=pwsh
+command -v pwsh >/dev/null 2>&1 || ps=powershell.exe
+exec "$ps" -NoLogo -NoProfile -ExecutionPolicy Bypass -File scripts/check.ps1 -Mode full

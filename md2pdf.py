@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """md2pdf: convert Markdown to a paginated PDF laid out for a reMarkable tablet (or A5/A4/Letter paper).
 
-Needs only Python 3.10+ and Microsoft Edge. On first run it installs its Python packages (markdown-it-py,
+Needs only Python 3.13+ and Microsoft Edge. On first run it installs its Python packages (markdown-it-py,
 mdit-py-plugins, pypdf, websockets) into a private folder next to this script, never into your Python.
 Documents are rendered locally by a headless Microsoft Edge; nothing is uploaded anywhere.
 
@@ -89,7 +89,7 @@ def runtime_home() -> pathlib.Path:
 
 def ensure_packages(home: pathlib.Path) -> None:
     """Install the packages into a private folder (once per Python version) and put it first on sys.path."""
-    key = hashlib.sha1("\n".join(REQUIREMENTS).encode()).hexdigest()[:8]
+    key = hashlib.sha1("\n".join(REQUIREMENTS).encode()).hexdigest()[:8]  # noqa: S324 - a folder name, not security
     tag = f"lib-py{sys.version_info[0]}{sys.version_info[1]}"
     lib, done = home / f"{tag}-{key}", home / f"{tag}-{key}" / ".complete"
     if not done.exists():
@@ -97,7 +97,8 @@ def ensure_packages(home: pathlib.Path) -> None:
         log(f"first run for this Python: installing {len(REQUIREMENTS)} packages into {lib}")
         cmd = [sys.executable, "-m", "pip", "install", "--disable-pip-version-check", "--no-input", "--quiet",
                "--no-warn-script-location", "--target", str(lib), *REQUIREMENTS]
-        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
+        res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,  # noqa: S603 - fixed pip command
+                             errors="replace")
         if res.returncode != 0:
             hint = ""
             if "No module named pip" in res.stdout:
@@ -148,7 +149,7 @@ def ensure_mermaid(home: pathlib.Path) -> tuple[pathlib.Path | None, str]:
                 data = pathlib.Path(src).read_bytes()
             else:
                 log(f"downloading mermaid.js (one time) from {src}")
-                with urllib.request.urlopen(src, timeout=60) as r:
+                with urllib.request.urlopen(src, timeout=60) as r:  # noqa: S310 - the built-in CDNs or the user's MD2PDF_MERMAID_URL
                     data = r.read()
             if len(data) < 100_000 or b"mermaid" not in data:
                 raise ValueError(f"unexpected content ({len(data)} bytes)")
@@ -341,7 +342,7 @@ TAG_RE = re.compile(r"<!--.*?-->|<(/?)([A-Za-z][\w:.-]*)((?:\s+[^\s=/>\"']+(?:\s
 ATTR_RE = re.compile(r"([^\s=/>\"']+)(?:\s*=\s*(\"[^\"]*\"|'[^']*'|[^\s>\"']+))?")
 
 
-def sanitize_html(s: str, doc: "Doc") -> str:
+def sanitize_html(s: str, doc: Doc) -> str:
     """Pass real HTML through, minus scripts, forms and event handlers. Unknown <tags> are shown as text."""
     def tag(m: re.Match) -> str:
         whole = m.group(0)
@@ -508,7 +509,7 @@ class Doc:
         text, starts = plain(tok)
         targets = self._classify_refs(text)
         stack = []
-        for ch, start in zip(tok.children, starts):
+        for ch, start in zip(tok.children, starts, strict=True):
             if ch.type == "link_open":
                 href, kind = self.link(str(ch.attrGet("href") or ""))
                 if href is None:  # cannot be followed in a PDF: keep the text, drop the link
@@ -1011,7 +1012,7 @@ class Cdp:
         try:
             await self.ws.send(json.dumps(msg))
             res = await asyncio.wait_for(fut, timeout)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             raise TimeoutError(f"Edge did not answer {method} within {timeout:g} s") from None
         except ConnectionClosed:
             raise ConnectionError("lost the connection to Edge (did it crash?)") from None
@@ -1086,7 +1087,9 @@ def launch_edge(exe: str, work: pathlib.Path):
         raise SetupError(f"md2pdf cannot drive Edge on this PC: {blocked['RemoteDebuggingAllowed']}")
     profile = work / "edge-profile"
     shutil.rmtree(profile, ignore_errors=True)
-    proc = subprocess.Popen([exe, *EDGE_FLAGS, f"--user-data-dir={profile}", "about:blank"],
+    # An app-compatibility layer inherited from the host (__COMPAT_LAYER, set by some terminals) makes Edge exit at once.
+    env = {k: v for k, v in os.environ.items() if k.upper() != "__COMPAT_LAYER"}
+    proc = subprocess.Popen([exe, *EDGE_FLAGS, f"--user-data-dir={profile}", "about:blank"], env=env,  # noqa: S603 - Edge only
                             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     port_file, deadline = profile / "DevToolsActivePort", time.time() + 30
     while time.time() < deadline:
@@ -1112,7 +1115,7 @@ class Browser:
         self.exe, self.work = exe, work
         self.proc = self.ws = self.cdp = self.pump = self.profile = None
 
-    async def start(self) -> "Browser":
+    async def start(self) -> Browser:
         self.proc, url, self.profile = launch_edge(self.exe, self.work)
         try:
             self.ws = await ws_connect(url, max_size=None, proxy=None, open_timeout=20, ping_interval=None)
@@ -1298,7 +1301,7 @@ async def convert_one(browser: Browser, src: pathlib.Path, out: pathlib.Path, la
             raise RuntimeError(f"Edge could not open the page: {nav['errorText']}")
         try:
             await asyncio.wait_for(loaded, 90)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             warnings.append("the page took over 90 s to load (slow remote images?); printed what had loaded")
         await evaluate(cdp, sid, "document.fonts.ready.then(() => true)", await_promise=True, timeout=30)
         diagrams = None
