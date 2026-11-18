@@ -1,11 +1,24 @@
 # Runtime files md2pdf installs on first run (Python packages, private Python, mermaid.js cache, scratch)
 .runtime/
 
-# Python
+# Python and dev tools
 __pycache__/
 *.py[cod]
 .venv/
 venv/
+.tools/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Test output: PDFs, page images and coverage reports (CI uploads this folder)
+test-artifacts/
+
+# Local-only name patterns for the privacy gate. It holds the very name it guards, so it must never be committed.
+.pii-patterns.local
 
 # Output from trying md2pdf inside this folder
 *.pdf

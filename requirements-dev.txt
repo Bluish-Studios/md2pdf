@@ -1,0 +1,13 @@
+# Development and CI only. md2pdf installs its own runtime packages on first run (see REQUIREMENTS in md2pdf.py);
+# the first four lines must match that list, which tests/test_setup.py checks.
+markdown-it-py>=3,<5
+mdit-py-plugins>=0.4,<1
+pypdf>=4,<7
+websockets>=15,<17
+
+pytest>=8
+pytest-cov>=5
+ruff>=0.6
+actionlint-py>=1.7
+pypdfium2>=4
+pillow>=10
