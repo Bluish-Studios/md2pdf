@@ -1,6 +1,6 @@
 # Development and CI only. md2pdf installs its own runtime packages on first run (see REQUIREMENTS in md2pdf.py);
 # the first four lines must match that list, which tests/test_setup.py checks.
-markdown-it-py>=3,<5
+markdown-it-py>=4.3.0,<5
 mdit-py-plugins>=0.4,<1
 pypdf>=4,<7
 websockets>=15,<17
