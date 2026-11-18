@@ -7,7 +7,7 @@ websockets>=15,<17
 
 pytest>=8
 pytest-cov>=5
-ruff>=0.6
+ruff>=0.17.5
 actionlint-py>=1.7
 pypdfium2>=4
 pillow>=10
